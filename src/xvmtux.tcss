@@ -1,0 +1,48 @@
+Screen {
+    layers: below above;
+}
+
+#error_box {
+    width: 100%;
+    height: 8;
+    color: auto;
+    content-align: center middle;
+    layer: above;
+    background: red;
+}
+
+#main_screen {
+    height: 100%;
+  }
+
+#device_tab {
+  width: 25%;
+  height: 100%;
+  border: blank;
+}
+
+#device_header {
+  height: 2;
+  content-align: center middle;
+  width: 100%;
+}
+
+#device_list {
+  height: 1fr;
+  border: blank;
+}
+
+#refresh_button {
+  height: 3;
+  width: 100%;
+}
+
+
+.device_button {
+    height: 3;
+    width: 100%;
+}
+
+Log {
+    border: solid white;
+  }
