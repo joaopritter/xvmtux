@@ -1,15 +1,24 @@
+if command -v python &> /dev/null; then
+    PYTHON_CMD=python
+elif command -v python3 &> /dev/null; then
+    PYTHON_CMD=python3
+else
+    echo "Neither python nor python3 command found. Please install Python."
+    exit 1
+fi
+
 if [ -d ".venv" ]; then
     source .venv/bin/activate
     echo "Virtual environment found, activating..."
 else
     echo "No virtual environment found, creating one..."
-    python -m venv .venv
+    $PYTHON_CMD -m venv .venv
     source .venv/bin/activate
     echo "Installing dependencies from requirements.txt..."
     pip install -r requirements.txt
 fi
 
-python src/xvmtux.py
+$PYTHON_CMD src/xvmtux.py
 PYTHON_PID=$!
 
 wait $PYTHON_PID
