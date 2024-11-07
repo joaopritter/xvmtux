@@ -37,6 +37,9 @@ Screen {
   width: 100%;
 }
 
+#filetree {
+  width: 25%;
+}
 
 .device_button {
     height: 3;
@@ -45,4 +48,8 @@ Screen {
 
 Log {
     border: solid white;
+  }
+
+.reply {
+    color: yellow;
   }
