@@ -20,3 +20,19 @@ de uma TUI, construído usando Textual e Bleak.
 
 Utilize o arquivo `setup.sh` para instalar a aplicação no path do usuário
 e realizar atualizações.
+
+### Shortcuts
+
+To enable command shortcuts, on the application files create a JSON with the following format
+inside the program files folder:
+
+Para habilitar atalhos de comandos na aplicação, crie um JSON com o seguinte formato na
+pasta dos arquivos do programa:
+```
+{
+  "Speed 0": ">SCT64 0<",
+  "Speed 60": ">SCT64 60999<",
+  "RPM 0": ">SCT27 0<",
+  "RPM 1200": ">SCT27 1200<"
+}
+```

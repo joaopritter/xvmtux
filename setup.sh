@@ -12,8 +12,9 @@ fi
 
 if [ ! -d $LIBPATH ]; then
   echo "Creating .local folders..."
-  if [ ! -d $BINPATH]; then
+  if [ ! -d $BINPATH ]; then
     mkdir $BINPATH
+  fi
   mkdir $LIBPATH
   echo "Created necessary folders."
   echo "Moving app data..."
