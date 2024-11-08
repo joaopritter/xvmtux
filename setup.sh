@@ -11,9 +11,11 @@ else
 fi
 
 if [ ! -d $LIBPATH ]; then
-  echo "Creating lib folder..."
+  echo "Creating .local folders..."
+  if [ ! -d $BINPATH]; then
+    mkdir $BINPATH
   mkdir $LIBPATH
-  echo "Created folder '$LIBPATH'."
+  echo "Created necessary folders."
   echo "Moving app data..."
   cp -rf ./ $LIBPATH
   echo "Creating virtual environment..."
