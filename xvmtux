@@ -1,3 +1,5 @@
+LOCALE=~/.local/lib/xvmtux
+
 if command -v python &> /dev/null; then
     PYTHON_CMD=python
 elif command -v python3 &> /dev/null; then
@@ -7,18 +9,19 @@ else
     exit 1
 fi
 
-if [ -d ".venv" ]; then
-    source .venv/bin/activate
-    echo "Virtual environment found, activating..."
+if [ -d "$LOCALE/.venv" ]; then
+    source $LOCALE/.venv/bin/activate
 else
     echo "No virtual environment found, creating one..."
-    $PYTHON_CMD -m venv .venv
-    source .venv/bin/activate
+    $PYTHON_CMD -m venv $LOCALE/.venv
+    source $LOCALE/.venv/bin/activate
     echo "Installing dependencies from requirements.txt..."
     pip install -r requirements.txt
 fi
 
-$PYTHON_CMD src/xvmtux.py
+echo "Running XVMTUX..."
+
+$PYTHON_CMD $LOCALE/src/xvmtux.py
 PYTHON_PID=$!
 
 wait $PYTHON_PID

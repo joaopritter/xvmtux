@@ -158,13 +158,12 @@ class Xvmtux(Screen):
 
     @work
     async def send_script(self, filename):
-        path = f"scripts/{filename}"
         message_logger = self.query_one("#message_log")
         if not self.client:
             message_logger.clear()
             message_logger.write_line("Connect to a device to send scripts.")
         else:
-            message_logger.write_line(f"Sending script: {path}")
+            message_logger.write_line(f"Sending script: {filename.split("/")[-1]}")
             if '"' in self.current_device_name:
                 copid = self.current_device_name.replace('"', "").split("_")[-1]
             else:
@@ -185,7 +184,7 @@ class Xvmtux(Screen):
 
     @on(FilteredDirectoryTree.FileSelected, "#filetree")
     async def on_file_selected(self, event: FilteredDirectoryTree.FileSelected) -> None:
-        selected_file = str(event.path).split("/")[-1]
+        selected_file = str(event.path)
         self.send_script(selected_file)
 
     async def on_key(self, event: events.Key) -> None:
@@ -198,7 +197,7 @@ class Xvmtux(Screen):
             if container.query_children(FilteredDirectoryTree):
                 container.query_one(FilteredDirectoryTree).remove()
             else:
-                container.mount(FilteredDirectoryTree("./scripts/", id="filetree"))
+                container.mount(FilteredDirectoryTree("./", id="filetree"))
                 self.query_one(FilteredDirectoryTree).focus()
 
 
