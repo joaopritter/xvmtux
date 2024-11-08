@@ -1,8 +1,8 @@
 import asyncio
-from textual import on, work, events
+from textual import messages, on, work, events
 from textual.binding import Binding
 from textual.screen import Screen
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, HorizontalScroll
 from textual.app import ComposeResult, App
 from textual.widgets import (
     Button,
@@ -21,6 +21,8 @@ from pathlib import Path
 from typing import Iterable
 import time
 import io
+import os
+import json
 
 WRITE_CHARACTERISTIC_UUID = "0000ff01-0000-1000-8000-00805f9b34fb"
 READ_CHARACTERISTIC_UUID = "0000ff01-0000-1000-8000-00805f9b34fb"
@@ -39,6 +41,14 @@ class Xvmtux(Screen):
     current_device_name = None
     current_device_address = ""
     client: BleakClient = None
+    user_shortcuts = {}
+
+    def get_user_shortcuts(self) -> None:
+        if os.path.exists("./shortcuts.json"):
+            with open("shortcuts.json") as file:
+                self.user_shortcuts = json.load(file)
+        else:
+            pass
 
     def compose(self) -> ComposeResult:
         yield Static(
@@ -62,6 +72,16 @@ class Xvmtux(Screen):
         input = self.query_one(Input)
         input.disabled = True
         self.update_device_list()
+        self.get_user_shortcuts()
+        message_container = self.query_one("#messages")
+        shortcuts = HorizontalScroll(
+            *[
+                Button(name, classes="short_button", disabled=True)
+                for name in self.user_shortcuts.keys()
+            ],
+            id="shortcuts",
+        )
+        message_container.mount(shortcuts)
 
     @work
     async def update_device_list(self) -> None:
@@ -81,6 +101,28 @@ class Xvmtux(Screen):
     @on(Button.Pressed, "#refresh_button")
     async def refresh_devices(self) -> None:
         self.update_device_list()
+
+    @on(Button.Pressed, ".short_button")
+    async def send_shortcut(self, button: Button.Pressed) -> None:
+        message_logger = self.query_one("#message_log")
+        choice = str(button.button.label)
+        command = self.user_shortcuts.get(choice)
+        if '"' in self.current_device_name:
+            copid = self.current_device_name.replace('"', "").split("_")[-1]
+        else:
+            copid = self.current_device_name.split("_")[-1]
+        xvm = generate_xvm(copid, "8000", command)
+        command_bytes = xvm.encode()
+        try:
+            if self.client.is_connected:
+                message_logger.write_line(f"\nMessage submitted: {command}")
+                await self.client.write_gatt_char(
+                    WRITE_CHARACTERISTIC_UUID, command_bytes
+                )
+            else:
+                message_logger.write_line("Device is not connected!")
+        except Exception as e:
+            message_logger.write_line(f"Failed to send command: {e}")
 
     @on(OptionList.OptionSelected, "#device_list")
     async def on_device_selected(self, event: OptionList.OptionSelected) -> None:
@@ -123,6 +165,10 @@ class Xvmtux(Screen):
         input = self.query_one(Input)
         input.disabled = True
 
+        shortcuts = self.query(".short_button")
+        for button in shortcuts:
+            button.disabled = True
+
         if self.client:
             if self.client.is_connected:
                 await self.client.disconnect()
@@ -143,6 +189,8 @@ class Xvmtux(Screen):
                     NOTIFY_CHARACTERISTIC_UUID, self.notification_handler
                 )
                 input.disabled = False
+                for button in shortcuts:
+                    button.disabled = False
 
             else:
                 message_logger.write_line(
@@ -188,6 +236,9 @@ class Xvmtux(Screen):
         self.send_script(selected_file)
 
     async def on_key(self, event: events.Key) -> None:
+        message_logger = self.query_one("#message_log")
+        if event.key == "l":
+            message_logger.write_line(str(self.user_shortcuts))
         if event.key == "q":
             self.app.exit()
         if event.key == "r":

@@ -1,5 +1,6 @@
 Screen {
     layers: below above;
+    scrollbar-gutter: stable;
 }
 
 #error_box {
@@ -37,9 +38,19 @@ Screen {
   width: 100%;
 }
 
+#shortcuts {
+  height: 3;
+  scrollbar-size-horizontal: 1;
+}
+
 #filetree {
   width: 25%;
 }
+
+.short_button {
+    border: white;
+    color: white;
+  }
 
 .device_button {
     height: 3;
